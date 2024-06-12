@@ -1,5 +1,10 @@
 from sklearn.linear_model import SGDClassifier, LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, roc_curve, auc
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
 from sklearn.preprocessing import StandardScaler
 import numpy as np
@@ -18,7 +23,9 @@ def train_model_incremental(model, train_features, train_labels, batch_size=1000
 
 def evaluate_model(model, test_features, test_labels, model_name):
     predictions = model.predict(test_features)
+    accuracy = accuracy_score(test_labels, predictions)
     print(f"Evaluation report for {model_name}:")
+    print(f"Accuracy: {accuracy:.4f}")
     print(classification_report(test_labels, predictions))
     print(confusion_matrix(test_labels, predictions))
 
@@ -47,34 +54,54 @@ def main():
     # Load the features
     train_hog_pca = np.load('../data/processed/train_hog_pca.npy')
     test_hog_pca = np.load('../data/processed/test_hog_pca.npy')
+    train_hog_features = np.load('../data/processed/train_hog_features.npy')
+    test_hog_features = np.load('../data/processed/test_hog_features.npy')
     train_sift_pca = np.load('../data/processed/train_sift_pca.npy')
     test_sift_pca = np.load('../data/processed/test_sift_pca.npy')
 
-    # Concatenate HOG and SIFT features
-    train_features = np.hstack((train_hog_pca, train_sift_pca))
-    test_features = np.hstack((test_hog_pca, test_sift_pca))
+    models = {
+        'logistic_regression': LogisticRegression(max_iter=1000),
+        'svm': SGDClassifier(loss='hinge', max_iter=1000, tol=1e-3),
+        'naive_bayes': GaussianNB(),
+        'random_forest': RandomForestClassifier(n_estimators=100),
+    }
 
     # Scale the features
     scaler = StandardScaler()
-    train_features = scaler.fit_transform(train_features)
-    test_features = scaler.transform(test_features)
 
-    models = {
-        'incremental_logistic_regression': SGDClassifier(loss='log_loss', max_iter=1000, tol=1e-3),
-        'logistic_regression': LogisticRegression(max_iter=1000),
-        'svm': SGDClassifier(loss='hinge', max_iter=1000, tol=1e-3),
-        'random_forest': RandomForestClassifier(n_estimators=100)
-    }
+    # Train and evaluate models on HOG features with PCA
+    # print("Training and evaluating models on HOG features with PCA...")
+    # train_hog_pca_scaled = scaler.fit_transform(train_hog_pca)
+    # test_hog_pca_scaled = scaler.transform(test_hog_pca)
+
+
+    # for model_name, model in models.items():
+    #     print(f'Training {model_name} on HOG features with PCA...')
+    #     trained_model = train_model(model, train_hog_pca_scaled, train_labels)
+    #     print(f'Evaluating {model_name} on HOG features with PCA...')
+    #     evaluate_model(trained_model, test_hog_pca_scaled, test_labels, model_name)
+
+    # Train and evaluate models on original HOG features without PCA
+    print("Training and evaluating models on original HOG features without PCA...")
+    train_hog_features_scaled = scaler.fit_transform(train_hog_features)
+    test_hog_features_scaled = scaler.transform(test_hog_features)
 
     for model_name, model in models.items():
-        print(f'Training {model_name}...')
-        if model_name in ['incremental_logistic_regression', 'svm']:
-            trained_model = train_model_incremental(model, train_features, train_labels)
-        else:
-            trained_model = train_model(model, train_features, train_labels)
-        
-        print(f'Evaluating {model_name}...')
-        evaluate_model(trained_model, test_features, test_labels, model_name)
+        print(f'Training {model_name} on original HOG features without PCA...')
+        trained_model = train_model(model, train_hog_features_scaled, train_labels)
+        print(f'Evaluating {model_name} on original HOG features without PCA...')
+        evaluate_model(trained_model, test_hog_features_scaled, test_labels, model_name)
+
+    # # Train and evaluate models on SIFT features
+    # print("Training and evaluating models on SIFT features...")
+    # train_sift_features_scaled = scaler.fit_transform(train_sift_pca)
+    # test_sift_features_scaled = scaler.transform(test_sift_pca)
+
+    # for model_name, model in models.items():
+    #     print(f'Training {model_name} on SIFT features...')
+    #     trained_model = train_model(model, train_sift_features_scaled, train_labels)
+    #     print(f'Evaluating {model_name} on SIFT features...')
+    #     evaluate_model(trained_model, test_sift_features_scaled, test_labels, model_name)
 
 if __name__ == "__main__":
     main()

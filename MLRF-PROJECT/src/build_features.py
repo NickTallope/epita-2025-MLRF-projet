@@ -55,6 +55,11 @@ def main():
     train_data = np.load('../data/processed/train_data.npy')
     test_data = np.load('../data/processed/test_data.npy')
 
+    print("Flattening training images...")
+    train_flattened = flatten_images(train_data)
+    print("Flattening test images...")
+    test_flattened = flatten_images(test_data)
+
     print("Extracting HOG features for training data...")
     train_hog_features = extract_hog_features(train_data)
     print("Extracting HOG features for test data...")
@@ -75,6 +80,9 @@ def main():
     print("Applying Incremental PCA to SIFT features for test data...")
     test_sift_pca = apply_incremental_pca(test_sift_features)
 
+
+    np.save('../data/processed/train_flattened.npy', train_flattened)
+    np.save('../data/processed/test_flattened.npy', test_flattened)
     np.save('../data/processed/train_hog_features.npy', train_hog_features)
     np.save('../data/processed/test_hog_features. npy', test_hog_features)
     np.save('../data/processed/train_hog_pca.npy', train_hog_pca)
