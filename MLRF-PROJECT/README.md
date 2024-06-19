@@ -2,6 +2,8 @@ This library is made for CIFAR-10 classification,
 
 you need first to put your cifar-10 data inside de data/row folder
 
+For the files located in src: 
+
 make_dataset.py enable to extract the images from the cifar-10 data inside datasets
 
 build_feature.py enable to extract the features from thoses datasets into differents files located in data/processed
