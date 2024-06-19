@@ -11,4 +11,8 @@ pandas
 pip
 python-dotenv
 scikit-learn
+numpy
+matplotlib
+pickle
+opencv-python
 -e .
