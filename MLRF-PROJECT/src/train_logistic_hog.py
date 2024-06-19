@@ -57,10 +57,9 @@ def main():
 
     # Hyperparameter tuning for Logistic Regression using GridSearchCV
     param_grid = {
-        'C': [0.01, 0.1, 1, 10, 100],
-        'penalty': ['l1', 'l2', 'elasticnet', 'none'],
+        'C': [0.01, 0.1, 1, 10],
         'solver': ['lbfgs', 'saga', 'liblinear'],
-        'max_iter': [100, 500, 1000]
+        'max_iter': [100, 150, 300]
     }
 
     print("Training and evaluating Logistic Regression with GridSearchCV on original HOG features without PCA...")

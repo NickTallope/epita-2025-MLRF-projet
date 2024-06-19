@@ -5,7 +5,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
+from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import matplotlib.pyplot as plt
@@ -56,14 +56,16 @@ def main():
     test_hog_pca = np.load('../data/processed/test_hog_pca.npy')
     train_hog_features = np.load('../data/processed/train_hog_features.npy')
     test_hog_features = np.load('../data/processed/test_hog_features.npy')
+    train_flatten_features = np.load('../data/processed/train_flattened.npy')
+    test_flatten_features = np.load('../data/processed/test_flattened.npy')
     train_sift_pca = np.load('../data/processed/train_sift_pca.npy')
     test_sift_pca = np.load('../data/processed/test_sift_pca.npy')
 
     models = {
-        'logistic_regression': LogisticRegression(max_iter=1000),
-        'svm': SGDClassifier(loss='hinge', max_iter=1000, tol=1e-3),
+        # 'logistic_regression': LogisticRegression(max_iter=1000),
+        # 'random_forest': RandomForestClassifier(n_estimators=100),
+        # 'svm_rbf': SVC(kernel='rbf', C=1.0, gamma='scale', probability=True),
         'naive_bayes': GaussianNB(),
-        'random_forest': RandomForestClassifier(n_estimators=100),
     }
 
     # Scale the features
@@ -91,6 +93,17 @@ def main():
         trained_model = train_model(model, train_hog_features_scaled, train_labels)
         print(f'Evaluating {model_name} on original HOG features without PCA...')
         evaluate_model(trained_model, test_hog_features_scaled, test_labels, model_name)
+
+
+    # print("Training and evaluating models on flattened data")
+    # train_flattened_scaled = scaler.fit_transform(train_flatten_features)
+    # test_flattened_scaled = scaler.transform(test_flatten_features)
+
+    # for model_name, model in models.items():
+    #     print(f'Training {model_name} on original flattened')
+    #     trained_model = train_model(model, train_flattened_scaled, train_labels)
+    #     print(f'Evaluating {model_name} on original HOG features without PCA...')
+    #     evaluate_model(trained_model, test_flattened_scaled, test_labels, model_name)
 
     # # Train and evaluate models on SIFT features
     # print("Training and evaluating models on SIFT features...")
